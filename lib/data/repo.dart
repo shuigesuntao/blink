@@ -7,7 +7,7 @@ import 'package:rxdart/rxdart.dart';
 
 
 class Repo {
-  Observable<List<Book>> test() {
+  Observable<List<Book>> getBooks() {
     return HttpManager.getInstance()
         .get(Api.TEST)
         .flatMap((t) => convert(t))

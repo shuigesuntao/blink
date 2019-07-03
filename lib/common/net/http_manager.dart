@@ -2,8 +2,8 @@ import 'package:blink/common/util/connect_util.dart';
 import 'package:dio/dio.dart';
 import 'base_resp.dart';
 import 'package:blink/common/config.dart';
-import 'header_interceptor.dart';
 import 'package:rxdart/rxdart.dart';
+import 'header_interceptor.dart';
 
 class Method {
   static const String get = "GET";
@@ -16,21 +16,17 @@ class Method {
 
 class HttpManager {
   static HttpManager _instance;
-  static BaseOptions _options;
   static Dio _dio;
   static Map<String, dynamic> _headers;
 
   HttpManager() {
-    if (_options == null) {
-      _options = BaseOptions(
-          connectTimeout: 5 * 1000,
-          receiveTimeout: 3 * 1000,
-          baseUrl: Config.BASE_URL);
-    }
-    _dio = Dio(_options);
+    _dio = Dio(BaseOptions(
+      connectTimeout: 5 * 1000,
+      receiveTimeout: 3 * 1000,
+      baseUrl: Config.BASE_URL
+    ));
     _dio.interceptors.add(HeaderInterceptor());
-    _dio.interceptors.add(LogInterceptor(
-        request: false, responseBody: true, responseHeader: false));
+    _dio.interceptors.add(LogInterceptor(request: false, responseBody: true, responseHeader: false));
   }
 
   static HttpManager getInstance() {

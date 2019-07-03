@@ -3,5 +3,5 @@ class BaseResp<T> {
   String msg;
   T data;
   bool hasError ;
-  BaseResp(this.code, this.msg, this.data,{this.hasError});
+  BaseResp(this.code, this.msg, this.data,{this.hasError = false});
 }

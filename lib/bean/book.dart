@@ -1,9 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'book.g.dart';
 
-List<Book> getBookList(List<dynamic> list){
+List<Book> getBookList(List<dynamic> list) {
   List<Book> result = [];
-  list.forEach((item){
+  list.forEach((item) {
     result.add(Book.fromJson(item));
   });
   return result;
@@ -17,7 +18,8 @@ class Book {
 
   Book({this.id, this.name, this.price});
 
-  factory Book.fromJson(Map<String, dynamic> srcJson) => _$BookFromJson(srcJson);
+  factory Book.fromJson(Map<String, dynamic> srcJson) =>
+      _$BookFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$BookToJson(this);
 }
