@@ -1,33 +1,31 @@
 import 'package:blink/base/base_bolc.dart';
 import 'package:blink/bean/book.dart';
+import 'package:blink/common/net/http_manager.dart';
+import 'package:blink/common/util/toast_util.dart';
+import 'package:blink/data/api.dart';
 import 'package:blink/data/repo.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:blink/ui/widget/loader_container.dart' as LoaderStater;
 
 class MainBloc extends BaseBloc {
+  List<Book> _books;
 
-  Repo repo = Repo();
-  // ignore: close_sinks
-  BehaviorSubject<List<Book>> _book = BehaviorSubject();
+  List<Book> get books => _books;
 
-  Stream<List<Book>> get bookStream => _book.stream;
-
-  void getBooks() {
-    Observable.just(1).delay(Duration(seconds: 3))
-      .listen((_) {
-      repo.getBooks()
-        .listen((books) => _book.add(books),
-        onError: (e) => _book.addError(e.msg));
+  void getBooks() async {
+    repo.getBooks().listen((books) {
+      _books = books;
+      if(_books == null || _books.isEmpty){
+        state = LoaderStater.LoaderState.NoData;
+      }else{
+        state = LoaderStater.LoaderState.Succeed;
+      }
+      notifyListeners();
+    }, onError: (e) {
+      state = LoaderStater.LoaderState.Failed;
+      notifyListeners();
+      ToastUtil.showToast(e.msg);
     });
-  }
-
-  @override
-  void dispose() {
-    _book.close();
-  }
-
-  @override
-  void doInit(BuildContext context) {
-    getBooks();
   }
 }

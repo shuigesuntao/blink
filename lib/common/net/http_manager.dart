@@ -21,8 +21,8 @@ class HttpManager {
 
   HttpManager() {
     _dio = Dio(BaseOptions(
-      connectTimeout: 5 * 1000,
-      receiveTimeout: 3 * 1000,
+      connectTimeout: 30 * 1000,
+      receiveTimeout: 30 * 1000,
       baseUrl: Config.BASE_URL
     ));
     _dio.interceptors.add(HeaderInterceptor());
@@ -109,4 +109,7 @@ class HttpManager {
   Observable<BaseResp> get(String path) =>
       Observable.fromFuture(request(path, method: Method.get))
           .asBroadcastStream();
+
+  Future<BaseResp> getF(String path) => request(path, method: Method.get);
+
 }

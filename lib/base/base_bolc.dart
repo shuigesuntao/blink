@@ -1,21 +1,24 @@
 
+import 'package:blink/data/repo.dart';
 import 'package:flutter/widgets.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:blink/ui/widget/loader_container.dart' as LoaderStater;
 
-abstract class BaseBloc {
-  bool _isFirst = true;
+abstract class BaseBloc with ChangeNotifier {
 
-  bool get isFirst => _isFirst;
 
-  void init(BuildContext context) {
-    if (_isFirst) {
-      _isFirst = false;
-      doInit(context);
+  Repo _repo;
+
+  Repo get repo => getRepo();
+
+  LoaderStater.LoaderState state = LoaderStater.LoaderState.Loading;
+
+  Repo getRepo(){
+    if(_repo == null){
+      _repo = Repo();
     }
+    return _repo;
   }
 
-  @protected
-  void doInit(BuildContext context);
 
   @protected
   Future onRefresh(){
