@@ -44,6 +44,7 @@ class HttpManager {
       {String method,
       data,
       Map<String, dynamic> headers,
+      Map<String, dynamic> queryParameters,
       Options options,
       CancelToken cancelToken}) async {
     Options op = _checkOptions(method, options);
@@ -55,7 +56,7 @@ class HttpManager {
     Response response;
     if (await ConnectUtil.isConnected()) {
       try {
-        response = await _dio.request(path,
+        response = await _dio.request(path,queryParameters: queryParameters,
             data: data, options: op, cancelToken: cancelToken);
       } on DioError catch (e) {
         int code;
@@ -86,8 +87,7 @@ class HttpManager {
         }
         return BaseResp(code, msg, null, hasError: true);
       }
-      return BaseResp(
-          response.data["code"], response.data["msg"], response.data["data"]);
+      return BaseResp(response.data["code"], response.data["msg"], response.data["data"]?? null);
     } else {
       //无网络
       return BaseResp(24, "暂无网络", null, hasError: true);
@@ -102,14 +102,6 @@ class HttpManager {
     return options;
   }
 
-  Observable<BaseResp> post(String path, data) =>
-      Observable.fromFuture(request(path, method: Method.post, data: data))
-          .asBroadcastStream();
-
-  Observable<BaseResp> get(String path) =>
-      Observable.fromFuture(request(path, method: Method.get))
-          .asBroadcastStream();
-
-  Future<BaseResp> getF(String path) => request(path, method: Method.get);
-
+  Future<BaseResp<T>> get<T>(String path,{queryParameters}) => request<T>(path, method: Method.get,queryParameters: queryParameters);
+  Future<BaseResp<T>> post<T>(String path, data) => request<T>(path, method: Method.post, data: data);
 }
