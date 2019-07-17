@@ -5,11 +5,10 @@ import 'loading_page.dart';
 
 class RefreshLayout extends StatefulWidget {
   final Widget child;
+  final Widget emptyWidget;
   final Function onRefresh;
   final Function loadMore;
   final bool isEnableLoadMore;
-  final bool firstRefresh;
-  final Widget firstRefreshWidget;
   final GlobalKey<EasyRefreshState> easyRefreshKey;
   final GlobalKey<RefreshHeaderState> headerKey;
   final GlobalKey<RefreshFooterState> footerKey;
@@ -21,10 +20,9 @@ class RefreshLayout extends StatefulWidget {
       this.easyRefreshKey,
       this.headerKey,
       this.footerKey,
+      this.emptyWidget,
       this.loadMore,
-      this.isEnableLoadMore = true,
-      this.firstRefresh = true,
-      this.firstRefreshWidget})
+      this.isEnableLoadMore = true})
       : assert(child != null),super(key: key);
 
   @override
@@ -45,7 +43,7 @@ class _RefreshLayoutState extends State<RefreshLayout> {
         refreshReadyText: "释放刷新",
         refreshingText: "正在刷新...",
         refreshedText: "刷新结束",
-        moreInfo: "更新于",
+        moreInfo: "更新于 %T",
         bgColor: Colors.transparent,
         textColor: Colors.black87,
         moreInfoColor: Colors.black54,
@@ -58,15 +56,14 @@ class _RefreshLayoutState extends State<RefreshLayout> {
         loadingText: "正在加载",
         loadedText: "加载结束",
         noMoreText: "没有更多数据",
-        moreInfo: "更新于",
+        moreInfo: "更新于 %T",
         bgColor: Colors.transparent,
         textColor: Colors.black87,
         moreInfoColor: Colors.black54,
         showMore: true,
       ),
       child: widget.child,
-      firstRefresh: widget.firstRefresh,
-      firstRefreshWidget: widget.firstRefresh ? widget.firstRefreshWidget ?? LoadingPage() : null,
+      emptyWidget: widget.emptyWidget,
       onRefresh: widget.onRefresh,
       loadMore: widget.isEnableLoadMore ? widget.loadMore : null,
     );

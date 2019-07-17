@@ -10,20 +10,30 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 class BookListPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _BookListPageState();
+  State<StatefulWidget> createState() => BookListPageState();
 }
 
-class _BookListPageState extends State<BookListPage> {
-  GlobalKey<EasyRefreshState> _easyRefreshKey = GlobalKey<EasyRefreshState>();
-  GlobalKey<RefreshHeaderState> _headerKey = GlobalKey<RefreshHeaderState>();
-  GlobalKey<RefreshFooterState> _footerKey = GlobalKey<RefreshFooterState>();
-
+class BookListPageState extends State<BookListPage>{
+  final _textController = TextEditingController();
+  final GlobalKey<EasyRefreshState> _easyRefreshKey = GlobalKey<EasyRefreshState>();
+  final GlobalKey<RefreshHeaderState> _headerKey = GlobalKey<RefreshHeaderState>();
+  final GlobalKey<RefreshFooterState> _footerKey = GlobalKey<RefreshFooterState>();
   BookBloc _bookBloc;
 
   @override
   void initState() {
     super.initState();
     _bookBloc = BlocProvider.of<BookBloc>(context);
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _onClearTapped() {
+    _textController.text = '';
   }
 
   @override
@@ -45,43 +55,84 @@ class _BookListPageState extends State<BookListPage> {
           ),
         ],
       ),
-      body: BlocBuilder(
-        bloc: _bookBloc,
-        builder: (context,state){
-          if(state is BookError){
-            return ErrorPage(
-              onReload:()=>_bookBloc.dispatch(FetchBook(q: "郭敬明"))
-            );
-          }
-          return RefreshLayout(
-            easyRefreshKey: _easyRefreshKey,
-            headerKey: _headerKey,
-            footerKey: _footerKey,
-            child: _buildList(state),
-            onRefresh: () async{
-              _bookBloc.dispatch(FetchBook(q: "郭敬明"));
-            },
-            loadMore: () async {
-              _bookBloc.dispatch(LoadMoreBook(q: "郭敬明",page:
-              state is BookLoaded ? state.currentPage + 1 : 1));
-            }
-          );
-        }
+      body: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search),
+                      suffixIcon: GestureDetector(
+                        child: Icon(Icons.clear),
+                        onTap: _onClearTapped,
+                      ),
+                      border: InputBorder.none,
+                      hintText: '请输入关键字',
+                    ),
+                  ),
+                )
+              ),
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  _bookBloc.dispatch(FetchBook(q:_textController.text,isRefresh: false));
+                },
+              )
+            ],
+
+          ),
+          Expanded(
+            child:  BlocBuilder(
+              bloc: _bookBloc,
+              builder: (context,state){
+                if(state is BookLoading){
+                  return LoadingPage();
+                }
+                if(state is BookEmpty){
+                  return EmptyPage();
+                }
+                if(state is BookError){
+                  return ErrorPage(
+                    onReload:()=>_bookBloc.dispatch(FetchBook(q: _textController.text,isRefresh: false))
+                  );
+                }
+                return RefreshLayout(
+                  easyRefreshKey: _easyRefreshKey,
+                  headerKey: _headerKey,
+                  footerKey: _footerKey,
+                  emptyWidget: EmptyPage(),
+                  child: _buildList(state),
+                  onRefresh: () async{
+                    _bookBloc.dispatch(FetchBook(q: _textController.text));
+                  },
+                  loadMore: () async {
+                    _bookBloc.dispatch(LoadMoreBook(q: _textController.text,page:
+                    state is BookLoaded ? state.currentPage + 1 : 1));
+                  }
+                );
+              }
+            )
+          )
+        ],
       )
     );
   }
 
-  // ignore: missing_return
   Widget _buildList(BookState state){
     if(state is BookLoaded){
-      state.isLoadMore
-        ? _easyRefreshKey.currentState.callLoadMoreFinish()
-        : _easyRefreshKey.currentState.callRefreshFinish();
-      return state.books.isEmpty
-        ? EmptyPage()
-        : ListView.builder(
-            itemCount: state.books.length,
-            itemBuilder: (context, index) {
+      if(state.isLoadMore){
+        _easyRefreshKey.currentState.callLoadMoreFinish();
+      }
+      if(state.isRefresh){
+        _easyRefreshKey.currentState.callRefreshFinish();
+      }
+      return ListView.builder(
+        itemCount: state.books.length,
+        itemBuilder: (context, index) {
           return BookItem(book:state.books[index]);
         },
       );
@@ -89,6 +140,7 @@ class _BookListPageState extends State<BookListPage> {
     return Container();
   }
 }
+
 
 class BookItem extends StatelessWidget {
 

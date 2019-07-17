@@ -6,14 +6,22 @@ abstract class BookState extends Equatable {
   BookState([List props = const []]) : super(props);
 }
 
-class BookInit extends BookState {}
+class BookLoading extends BookState {}
+
+class BookEmpty extends BookState {}
 
 class BookLoaded extends BookState {
   final List<Book> books;
   final int currentPage;
   final bool isLoadMore;
+  final bool isRefresh;
 
-  BookLoaded({@required this.books,this.isLoadMore = false,this.currentPage = 1}): super([books,isLoadMore,currentPage]);
+  BookLoaded({
+    @required this.books,
+    this.isLoadMore = false,
+    this.isRefresh = false,
+    this.currentPage = 1
+  }): super([books,isLoadMore,isRefresh,currentPage]);
 }
 
 class BookError extends BookState {

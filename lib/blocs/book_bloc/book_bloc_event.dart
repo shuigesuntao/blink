@@ -7,11 +7,13 @@ abstract class BookEvent extends Equatable {
 
 class FetchBook extends BookEvent {
   final String q;
+  final bool isRefresh;
 
-  FetchBook({@required this.q})
+  FetchBook({@required this.q,this.isRefresh = true})
     : assert(q != null),
-      super([q]);
+      super([q,isRefresh]);
 }
+
 
 class LoadMoreBook extends BookEvent {
   final String q;

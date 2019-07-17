@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Book',
             theme: themeState.type == ThemeType.light ? ThemeData.light() : ThemeData.dark(),
             home: BlocProvider(
-              builder: (context) => BookBloc(bookRepository: BookRepository()),
+              builder: (context) => BookBloc(bookRepository: BookRepository())..dispatch(FetchBook(q: "郭敬明",isRefresh: false)),
               child: BookListPage(),
             )
         );
